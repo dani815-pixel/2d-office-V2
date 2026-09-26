@@ -518,19 +518,6 @@ App.U = U;
 App.STORE = STORE;
 window.CAO2 = App;
 
-/* ================= MODULE: CONFIG ================= */
-const CONFIG = {
-  W: 960, H: 540,                              // 스테이지 논리 해상도 (16:9, 1920×1080 스케일)
-  COINS: ['BTC','ETH','BNB','XRP','SOL'],
-  WALK_SPEED: 110,                             // px/s
-  STAGE_SCALE: 3,                              // 픽셀아트 스케일
-  EFFECTIVE_MAX_REQ_DEFAULT: 10,
-  SEAT_X: [298, 379, 460, 541, 622, 703],      // 6석 (뒤줄, 칩 간격 81px)
-  SEAT_Y: 322,                                 // 착석 기준선 (테이블 뒤)
-  DOOR: { x: 30, y: 236 },                     // 입구 (왼쪽 벽)
-  TG_ENDPOINTS: ['/api/telegram/meeting-start','/api/telegram/meeting-end','/api/telegram/upload-video'],
-};
-
 /* ================= MODULE: MARKET ====================
    Market Tick → Snapshot Update 만 담당. Meeting Engine은 구독만 한다 (§15).
    Prototype: 정적 DEMO 데이터로 시작. Binance WS 연결 성공 시에만 LIVE 배지.
