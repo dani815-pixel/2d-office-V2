@@ -517,72 +517,15 @@ App.U = U;
 App.STORE = STORE;
 window.CAO2 = App;
 
-/* ================= MODULE: MARKET ====================
-   Market Tick → Snapshot Update 만 담당. Meeting Engine은 구독만 한다 (§15).
-   Prototype: 정적 DEMO 데이터로 시작. Binance WS 연결 성공 시에만 LIVE 배지.
-   랜덤 가격을 LIVE 인 것처럼 위장하지 않는다 (§14/§87-14).
-====================================================== */
-const MARKET = (() => {
-  // DEMO Snapshot — 명확히 DEMO 로 표기되는 정적 데모 데이터
-  const DEMO = {
-    BTC:{ price:83799.99, chg:-2.41, high:86210.00, low:82100.50, vol:18452.3 },
-    ETH:{ price:2661.52,  chg:-3.10, high:2762.11,  low:2588.40,  vol:112033.8 },
-    BNB:{ price:588.42,   chg:+1.24, high:595.02,   low:575.31,   vol:39120.4 },
-    XRP:{ price:1.4791,   chg:-9.20, high:1.6310,   low:1.4052,   vol:88402113 },
-    SOL:{ price:113.00,   chg:-4.02, high:118.44,   low:109.85,   vol:1042201 },
-  };
-  const snap = { source:'DEMO', ts: Date.now(), coins: JSON.parse(JSON.stringify(DEMO)) };
-  let ws = null, wsRetry = 0, listeners = [], liveOk = false;
+/* ================= MODULE: MARKET ==================== */
+import { createMarketService } from './src/market/MarketService.ts';
 
-  const notify = () => { snap.ts = Date.now(); listeners.forEach(f => { try{ f(snap); }catch(e){} }); };
-
-  function connectWS(){
-    // Binance 공개 스트림 (API Key 불필요). 실패 시 DEMO 유지 — 거짓 LIVE 표시 금지.
-    try{
-      const streams = CONFIG.COINS.map(c => c.toLowerCase()+'usdt@miniTicker').join('/');
-      ws = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + streams);
-      ws.onmessage = (ev) => {
-        try{
-          const d = JSON.parse(ev.data).data; if(!d || !d.s) return;
-          const sym = d.s.replace('USDT',''); if(!CONFIG.COINS.includes(sym)) return;
-          const c = snap.coins[sym], close = +d.c, open = +d.o;
-          c.price = close; c.chg = (close - open) / open * 100; c.high = +d.h; c.low = +d.l; c.vol = +d.v;
-          if (!liveOk){ liveOk = true; snap.source = 'LIVE'; U.toast('Binance 실시간 스트림 연결됨 (LIVE)', 'ok'); }
-          notify();
-        }catch(e){}
-      };
-      ws.onerror = ws.onclose = () => {
-        if (liveOk) return;                          // 한번 LIVE 였으면 재연결 로직은 백엔드 단계로 이관
-        wsRetry++;
-        if (wsRetry <= 2) setTimeout(connectWS, 2500 * wsRetry);
-        else { snap.source='DEMO'; snap.demoNote='WS unavailable'; notify(); }
-      };
-    }catch(e){ snap.source='DEMO'; notify(); }
-  }
-
-  function tickSignals(){
-    // §44 Live Meeting Signal — 30초 롤링창. 대화 재생성 없이 배지만 전달.
-    // Prototype: LIVE 모드에서 현재 chg 기준 임계 도달 + 쿨다운.
-    if (!MEETING.running()) return;
-    const now = Date.now();
-    for (const sym of CONFIG.COINS){
-      const c = snap.coins[sym];
-      const cd = (MARKET._cool = MARKET._cool || {})[sym] || 0;
-      if (Math.abs(c.chg) >= 5.5 && now > cd){
-        MARKET._cool[sym] = now + 90000;
-        STAGE.flashSignal(sym, c.chg);
-      }
-    }
-  }
-
-  return {
-    init(){ connectWS(); setInterval(tickSignals, 5000); },
-    snapshot: () => snap,
-    onTick(fn){ listeners.push(fn); },
-    isLive: () => snap.source === 'LIVE',
-    badge: () => snap.source === 'LIVE' ? 'LIVE · BINANCE' : 'DEMO DATA',
-  };
-})();
+const MARKET = createMarketService({
+  CONFIG,
+  U,
+  getMeetingRunning: () => MEETING.running(),
+  flashSignal: (sym, chg) => STAGE.flashSignal(sym, chg),
+});
 App.MARKET = MARKET;
 
 /* ================= MODULE: SPRITES ====================
