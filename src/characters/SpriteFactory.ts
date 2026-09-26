@@ -1,5 +1,3 @@
-import { CONFIG } from '../core/config.ts';
-
 /** Pixel-art sprite factory extracted from the V2 prototype. */
 export const SPRITES = (() => {
 
