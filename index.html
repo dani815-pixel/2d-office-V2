@@ -472,7 +472,7 @@ Market Snapshot + Previous Meeting + Trader Memory + Analysis Options 가 자동
 <div id="toast-root" class="fixed bottom-4 right-4 z-[90] flex flex-col gap-2 w-[320px]"></div>
 <div id="modal-root"></div>
 
-<script>
+<script type="module">
 'use strict';
 /* ====================================================================================
    2D CRYPTO AI OFFICE V2 — AI Crypto Meeting & Broadcast Studio
@@ -499,7 +499,23 @@ Market Snapshot + Previous Meeting + Trader Memory + Analysis Options 가 자동
    TradeScenario, TradingTeamState, TradeReview, TraderMemory, AISettings,
    RecordingState, TelegramState
    ==================================================================================== */
+import { CONFIG } from './src/core/config.ts';
+import { STORE } from './src/core/store.ts';
+import {
+  clamp, lerp, uuid, today, fmtPrice, fmtChg, esc,
+  query, queryAll, toast, icons,
+} from './src/core/utils.ts';
+
+const U = {
+  $: query,
+  $: queryAll,
+  clamp, lerp, uuid, today, fmtPrice, fmtChg, esc, toast, icons,
+};
+
 const App = {};                                // 전역 네임스페이스 (디버그/통합용)
+App.CONFIG = CONFIG;
+App.U = U;
+App.STORE = STORE;
 window.CAO2 = App;
 
 /* ================= MODULE: CONFIG ================= */
@@ -514,47 +530,6 @@ const CONFIG = {
   DOOR: { x: 30, y: 236 },                     // 입구 (왼쪽 벽)
   TG_ENDPOINTS: ['/api/telegram/meeting-start','/api/telegram/meeting-end','/api/telegram/upload-video'],
 };
-
-/* ================= MODULE: UTILS ================= */
-const U = {
-  $: (s, r=document) => r.querySelector(s),
-  $$: (s, r=document) => [...r.querySelectorAll(s)],
-  clamp: (v,a,b) => Math.max(a, Math.min(b, v)),
-  lerp: (a,b,t) => a + (b-a)*t,
-  uuid: () => Date.now().toString(36) + Math.random().toString(36).slice(2,8),
-  today: () => new Date().toISOString().slice(0,10),
-  fmtPrice(p){
-    if (p == null || isNaN(p)) return '—';
-    const d = p >= 1000 ? 2 : p >= 10 ? 2 : 4;
-    return p.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
-  },
-  fmtChg(c){ if (c == null || isNaN(c)) return '—'; return (c>=0?'+':'') + c.toFixed(2) + '%'; },
-  esc(s){ return String(s??'').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); },
-  toast(msg, type='info', ms=3600){
-    const t = document.createElement('div');
-    t.className = 'toast ' + (type==='info'?'':type);
-    t.textContent = msg;
-    U.$('#toast-root').appendChild(t);
-    setTimeout(()=>{ t.style.opacity='0'; t.style.transition='.4s'; setTimeout(()=>t.remove(),420); }, ms);
-  },
-  icons(){ if (window.lucide) lucide.createIcons(); },
-};
-App.U = U;
-
-/* ================= MODULE: STORE ================= */
-const STORE = {
-  k: (n) => 'cao2.' + n,
-  get(n, d=null){ try{ const v = localStorage.getItem(this.k(n)); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(n, v){ try{ localStorage.setItem(this.k(n), JSON.stringify(v)); }catch(e){} },
-  del(n){ try{ localStorage.removeItem(this.k(n)); }catch(e){} },
-  /* §72 Global Reset — 유지: 캐릭터/코인/기본팀/소스/기본설정 */
-  resetAll(){
-    const keys = ['brief','aiSettings','ui','meeting','report','archive','memoryTrader','memoryMeeting',
-      'balance','positions','reviews','scenarios','requests','usage','tgSent','customDirectives'];
-    keys.forEach(k => this.del(k));
-  },
-};
-App.STORE = STORE;
 
 /* ================= MODULE: MARKET ====================
    Market Tick → Snapshot Update 만 담당. Meeting Engine은 구독만 한다 (§15).
