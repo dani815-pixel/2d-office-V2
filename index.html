@@ -511,7 +511,7 @@ const U = {
   queryAll,
   clamp, lerp, uuid, today, fmtPrice, fmtChg, esc, toast, icons,
 };
-Object.defineProperty(U, '                                // 전역 네임스페이스 (디버그/통합용)
+const App = {};
 App.CONFIG = CONFIG;
 App.U = U;
 App.STORE = STORE;
@@ -1377,8 +1377,8 @@ const AI = (() => {
 
   function saveFromDOM(){
     S.endpoint = U.$('#ai-endpoint').value.trim().replace(/\/+$/,'');
-    S.mode = U.$$('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
-    S.promptMode = U.$$('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
+    S.mode = U.queryAll('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
+    S.promptMode = U.queryAll('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
     S.maxCostPerRequest = +U.$('#max-cost').value || 0.05;
     S.dailyCostLimit = +U.$('#daily-cost').value || 0.5;
     S.dailyRequestLimit = +U.$('#daily-req').value || 10;
@@ -1393,8 +1393,8 @@ const AI = (() => {
   const an = (id) => U.$('#'+id).checked;
   function toDOM(){
     U.$('#ai-endpoint').value = S.endpoint || '';
-    (U.$$('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
-    (U.$$('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
+    (U.queryAll('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
+    (U.queryAll('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
     U.$('#max-cost').value = S.maxCostPerRequest; U.$('#daily-cost').value = S.dailyCostLimit; U.$('#daily-req').value = S.dailyRequestLimit;
     U.$('#auto-repair').checked = !!S.autoRepair; U.$('#fallback-enabled').checked = !!S.fallbackEnabled;
     U.$('#custom-directives').value = STORE.get('customDirectives','') || '';
@@ -1969,8 +1969,8 @@ const UI = (() => {
     // tabs
     U.$('#tabs').addEventListener('click', e => {
       const b = e.target.closest('.tab-btn'); if (!b) return;
-      U.$$('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
-      U.$$('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
+      U.queryAll('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
+      U.queryAll('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
     });
     // controls
     U.$('#btn-start').onclick = () => MEETING.start();
@@ -2014,11 +2014,11 @@ const UI = (() => {
     U.$('#btn-ai-retry').onclick = () => AI.runAnalysis();
     U.$('#btn-ai-demo').onclick = () => AI.loadDemo();
     U.$('#btn-ai-manual').onclick = () => {
-      const r = U.$$('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
+      const r = U.queryAll('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
       U.$('#import-raw').focus(); U.$('#import-raw').scrollIntoView({behavior:'smooth', block:'center'});
       U.toast('MANUAL IMPORT 모드 — 외부 AI 결과를 붙여넣으세요.', 'info'); };
-    U.$$('input[name=promptMode]').forEach(r => r.addEventListener('change',
-      () => U.$('#custom-directives').classList.toggle('hidden', !U.$$('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
+    U.queryAll('input[name=promptMode]').forEach(r => r.addEventListener('change',
+      () => U.$('#custom-directives').classList.toggle('hidden', !U.queryAll('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
     U.$('#btn-report-copy').onclick = () => copyText(lastReportText || '', 'Report가 복사되었습니다.');
     updateBriefChip(); marketTick(); renderArchive();
   }
@@ -2032,7 +2032,7 @@ const UI = (() => {
   function transcript(id, text, hl, desk){
     const c = CHARACTERS.byId(id), list = U.$('#tr-list');
     if (list.firstElementChild?.textContent?.includes('회의가 시작')) list.innerHTML = '';
-    U.$$('.tr-line', list).forEach(x => x.classList.remove('cur'));
+    U.queryAll('.tr-line', list).forEach(x => x.classList.remove('cur'));
     const d = document.createElement('div');
     d.className = 'tr-line cur'; d.style.borderLeftColor = c.def.accent;
     d.innerHTML = `<div class="text-[10px] font-bold mono" style="color:${c.def.accent}">${c.def.name} · ${c.def.role}
@@ -2053,7 +2053,7 @@ const UI = (() => {
   }
   const dimSpeaker = () => { U.$('#tr-speaker').innerHTML = '<span class="dot"></span>…'; };
   const clearSpeaker = () => { U.$('#tr-speaker').style.display = 'none'; clearSpeakerRows(); };
-  const clearSpeakerRows = () => U.$$('.tr-line').forEach(x => x.classList.remove('cur'));
+  const clearSpeakerRows = () => U.queryAll('.tr-line').forEach(x => x.classList.remove('cur'));
 
   function setStatus(s){
     const el = U.$('#meeting-status');
@@ -3111,8 +3111,8 @@ const AI = (() => {
 
   function saveFromDOM(){
     S.endpoint = U.$('#ai-endpoint').value.trim().replace(/\/+$/,'');
-    S.mode = U.$$('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
-    S.promptMode = U.$$('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
+    S.mode = U.queryAll('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
+    S.promptMode = U.queryAll('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
     S.maxCostPerRequest = +U.$('#max-cost').value || 0.05;
     S.dailyCostLimit = +U.$('#daily-cost').value || 0.5;
     S.dailyRequestLimit = +U.$('#daily-req').value || 10;
@@ -3127,8 +3127,8 @@ const AI = (() => {
   const an = (id) => U.$('#'+id).checked;
   function toDOM(){
     U.$('#ai-endpoint').value = S.endpoint || '';
-    (U.$$('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
-    (U.$$('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
+    (U.queryAll('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
+    (U.queryAll('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
     U.$('#max-cost').value = S.maxCostPerRequest; U.$('#daily-cost').value = S.dailyCostLimit; U.$('#daily-req').value = S.dailyRequestLimit;
     U.$('#auto-repair').checked = !!S.autoRepair; U.$('#fallback-enabled').checked = !!S.fallbackEnabled;
     U.$('#custom-directives').value = STORE.get('customDirectives','') || '';
@@ -3703,8 +3703,8 @@ const UI = (() => {
     // tabs
     U.$('#tabs').addEventListener('click', e => {
       const b = e.target.closest('.tab-btn'); if (!b) return;
-      U.$$('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
-      U.$$('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
+      U.queryAll('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
+      U.queryAll('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
     });
     // controls
     U.$('#btn-start').onclick = () => MEETING.start();
@@ -3748,11 +3748,11 @@ const UI = (() => {
     U.$('#btn-ai-retry').onclick = () => AI.runAnalysis();
     U.$('#btn-ai-demo').onclick = () => AI.loadDemo();
     U.$('#btn-ai-manual').onclick = () => {
-      const r = U.$$('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
+      const r = U.queryAll('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
       U.$('#import-raw').focus(); U.$('#import-raw').scrollIntoView({behavior:'smooth', block:'center'});
       U.toast('MANUAL IMPORT 모드 — 외부 AI 결과를 붙여넣으세요.', 'info'); };
-    U.$$('input[name=promptMode]').forEach(r => r.addEventListener('change',
-      () => U.$('#custom-directives').classList.toggle('hidden', !U.$$('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
+    U.queryAll('input[name=promptMode]').forEach(r => r.addEventListener('change',
+      () => U.$('#custom-directives').classList.toggle('hidden', !U.queryAll('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
     U.$('#btn-report-copy').onclick = () => copyText(lastReportText || '', 'Report가 복사되었습니다.');
     updateBriefChip(); marketTick(); renderArchive();
   }
@@ -3766,7 +3766,7 @@ const UI = (() => {
   function transcript(id, text, hl, desk){
     const c = CHARACTERS.byId(id), list = U.$('#tr-list');
     if (list.firstElementChild?.textContent?.includes('회의가 시작')) list.innerHTML = '';
-    U.$$('.tr-line', list).forEach(x => x.classList.remove('cur'));
+    U.queryAll('.tr-line', list).forEach(x => x.classList.remove('cur'));
     const d = document.createElement('div');
     d.className = 'tr-line cur'; d.style.borderLeftColor = c.def.accent;
     d.innerHTML = `<div class="text-[10px] font-bold mono" style="color:${c.def.accent}">${c.def.name} · ${c.def.role}
@@ -3787,7 +3787,7 @@ const UI = (() => {
   }
   const dimSpeaker = () => { U.$('#tr-speaker').innerHTML = '<span class="dot"></span>…'; };
   const clearSpeaker = () => { U.$('#tr-speaker').style.display = 'none'; clearSpeakerRows(); };
-  const clearSpeakerRows = () => U.$$('.tr-line').forEach(x => x.classList.remove('cur'));
+  const clearSpeakerRows = () => U.queryAll('.tr-line').forEach(x => x.classList.remove('cur'));
 
   function setStatus(s){
     const el = U.$('#meeting-status');
@@ -4847,8 +4847,8 @@ const AI = (() => {
 
   function saveFromDOM(){
     S.endpoint = U.$('#ai-endpoint').value.trim().replace(/\/+$/,'');
-    S.mode = U.$$('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
-    S.promptMode = U.$$('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
+    S.mode = U.queryAll('input[name=aiMode]').find(r=>r.checked)?.value || 'AUTO';
+    S.promptMode = U.queryAll('input[name=promptMode]').find(r=>r.checked)?.value || 'SMART';
     S.maxCostPerRequest = +U.$('#max-cost').value || 0.05;
     S.dailyCostLimit = +U.$('#daily-cost').value || 0.5;
     S.dailyRequestLimit = +U.$('#daily-req').value || 10;
@@ -4863,8 +4863,8 @@ const AI = (() => {
   const an = (id) => U.$('#'+id).checked;
   function toDOM(){
     U.$('#ai-endpoint').value = S.endpoint || '';
-    (U.$$('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
-    (U.$$('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
+    (U.queryAll('input[name=aiMode]').find(r=>r.value===S.mode) || {}).checked = true;
+    (U.queryAll('input[name=promptMode]').find(r=>r.value===S.promptMode) || {}).checked = true;
     U.$('#max-cost').value = S.maxCostPerRequest; U.$('#daily-cost').value = S.dailyCostLimit; U.$('#daily-req').value = S.dailyRequestLimit;
     U.$('#auto-repair').checked = !!S.autoRepair; U.$('#fallback-enabled').checked = !!S.fallbackEnabled;
     U.$('#custom-directives').value = STORE.get('customDirectives','') || '';
@@ -5439,8 +5439,8 @@ const UI = (() => {
     // tabs
     U.$('#tabs').addEventListener('click', e => {
       const b = e.target.closest('.tab-btn'); if (!b) return;
-      U.$$('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
-      U.$$('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
+      U.queryAll('.tab-btn').forEach(x => x.classList.toggle('active', x === b));
+      U.queryAll('.tabpage').forEach(p => p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab));
     });
     // controls
     U.$('#btn-start').onclick = () => MEETING.start();
@@ -5484,11 +5484,11 @@ const UI = (() => {
     U.$('#btn-ai-retry').onclick = () => AI.runAnalysis();
     U.$('#btn-ai-demo').onclick = () => AI.loadDemo();
     U.$('#btn-ai-manual').onclick = () => {
-      const r = U.$$('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
+      const r = U.queryAll('input[name=aiMode]').find(x => x.value === 'MANUAL'); if (r) r.checked = true;
       U.$('#import-raw').focus(); U.$('#import-raw').scrollIntoView({behavior:'smooth', block:'center'});
       U.toast('MANUAL IMPORT 모드 — 외부 AI 결과를 붙여넣으세요.', 'info'); };
-    U.$$('input[name=promptMode]').forEach(r => r.addEventListener('change',
-      () => U.$('#custom-directives').classList.toggle('hidden', !U.$$('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
+    U.queryAll('input[name=promptMode]').forEach(r => r.addEventListener('change',
+      () => U.$('#custom-directives').classList.toggle('hidden', !U.queryAll('input[name=promptMode]').find(x => x.checked && x.value === 'CUSTOM'))));
     U.$('#btn-report-copy').onclick = () => copyText(lastReportText || '', 'Report가 복사되었습니다.');
     updateBriefChip(); marketTick(); renderArchive();
   }
@@ -5502,7 +5502,7 @@ const UI = (() => {
   function transcript(id, text, hl, desk){
     const c = CHARACTERS.byId(id), list = U.$('#tr-list');
     if (list.firstElementChild?.textContent?.includes('회의가 시작')) list.innerHTML = '';
-    U.$$('.tr-line', list).forEach(x => x.classList.remove('cur'));
+    U.queryAll('.tr-line', list).forEach(x => x.classList.remove('cur'));
     const d = document.createElement('div');
     d.className = 'tr-line cur'; d.style.borderLeftColor = c.def.accent;
     d.innerHTML = `<div class="text-[10px] font-bold mono" style="color:${c.def.accent}">${c.def.name} · ${c.def.role}
@@ -5523,7 +5523,7 @@ const UI = (() => {
   }
   const dimSpeaker = () => { U.$('#tr-speaker').innerHTML = '<span class="dot"></span>…'; };
   const clearSpeaker = () => { U.$('#tr-speaker').style.display = 'none'; clearSpeakerRows(); };
-  const clearSpeakerRows = () => U.$$('.tr-line').forEach(x => x.classList.remove('cur'));
+  const clearSpeakerRows = () => U.queryAll('.tr-line').forEach(x => x.classList.remove('cur'));
 
   function setStatus(s){
     const el = U.$('#meeting-status');
