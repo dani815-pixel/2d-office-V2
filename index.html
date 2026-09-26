@@ -517,16 +517,7 @@ App.U = U;
 App.STORE = STORE;
 window.CAO2 = App;
 
-/* ================= MODULE: MARKET ==================== */
-import { createMarketService } from './src/market/MarketService.ts';
 
-const MARKET = createMarketService({
-  CONFIG,
-  U,
-  getMeetingRunning: () => MEETING.running(),
-  flashSignal: (sym, chg) => STAGE.flashSignal(sym, chg),
-});
-App.MARKET = MARKET;
 
 /* ================= MODULE: SPRITES ====================
    2D 픽셀 스프라이트 팩토리 — 코드 생성 픽셀아트 (16×20).
